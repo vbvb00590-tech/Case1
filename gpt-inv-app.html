@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GPT INV — AI Trading Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Cabinet+Grotesk:wght@400;500;700;800;900&family=Instrument+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --red:#e01c2e;--red2:#b81020;--redL:rgba(224,28,46,0.18);
+  --black:#060608;--dark:#0b0b0f;--card:#111116;--card2:#18181e;
+  --white:#f4f2ee;--grey:#666;--muted:#333;
+  --border:rgba(255,255,255,0.07);--green:#22c55e;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:'Cabinet Grotesk',sans-serif;background:var(--black);color:var(--white);overflow-x:hidden;}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:300;height:62px;padding:0 52px;
+  display:flex;align-items:center;justify-content:space-between;
+  background:rgba(6,6,8,0.88);backdrop-filter:blur(24px);
+  border-bottom:1px solid var(--border);}
+.nav-logo{font-size:16px;font-weight:900;letter-spacing:-.3px;color:var(--white);
+  text-decoration:none;display:flex;align-items:center;gap:10px;}
+.nav-badge{width:30px;height:30px;background:var(--red);border-radius:8px;
+  display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;}
+.nav-links{display:flex;gap:32px;align-items:center;}
+.nl{font-family:'Instrument Mono',monospace;font-size:11px;color:var(--grey);
+  text-decoration:none;letter-spacing:.5px;transition:color .2s;}
+.nl:hover{color:var(--white);}
+.nav-btn{background:var(--red);color:var(--white);padding:9px 22px;border-radius:8px;
+  font-size:13px;font-weight:700;text-decoration:none;
+  box-shadow:0 0 20px rgba(224,28,46,0.3);transition:all .2s;}
+.nav-btn:hover{background:var(--red2);transform:translateY(-1px);box-shadow:0 0 36px rgba(224,28,46,0.5);}
+
+/* HERO */
+.hero{min-height:100vh;display:grid;grid-template-columns:1fr 1fr;
+  align-items:center;padding:80px 52px 60px;gap:48px;
+  position:relative;overflow:hidden;}
+
+/* Atmospheric red bg */
+.hero-atm{position:absolute;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(ellipse 65% 75% at 78% 50%,rgba(180,10,24,0.40) 0%,transparent 65%),
+    radial-gradient(ellipse 45% 55% at 15% 85%,rgba(224,28,46,0.12) 0%,transparent 60%),
+    radial-gradient(ellipse 55% 35% at 85% 8%, rgba(140,0,18,0.22) 0%,transparent 55%);}
+
+/* Vertical bar lines texture */
+.hero-bars{position:absolute;bottom:0;right:52px;z-index:0;pointer-events:none;
+  display:flex;gap:3px;align-items:flex-end;height:50%;opacity:.15;}
+.hbar{width:2px;background:var(--red);border-radius:1px 1px 0 0;
+  animation:barP 3s ease-in-out infinite;}
+@keyframes barP{0%,100%{opacity:.4}50%{opacity:1}}
+
+/* HERO LEFT */
+.hero-left{position:relative;z-index:2;}
+.hero-pill{display:inline-flex;align-items:center;gap:8px;
+  background:var(--card);border:1px solid var(--border);border-radius:100px;
+  padding:6px 14px 6px 8px;font-family:'Instrument Mono',monospace;
+  font-size:11px;color:var(--grey);letter-spacing:.5px;margin-bottom:28px;}
+.pill-dot{width:6px;height:6px;background:var(--green);border-radius:50%;
+  box-shadow:0 0 8px var(--green);animation:blink .9s infinite;flex-shrink:0;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
+.hero-h1{font-size:clamp(42px,5.2vw,78px);font-weight:900;letter-spacing:-2.5px;
+  line-height:.92;margin-bottom:24px;}
+.h1-w{color:var(--white);}
+.h1-r{color:var(--red);}
+.h1-d{color:#212126;}
+.hero-p{font-size:15px;color:#555;line-height:1.8;max-width:400px;margin-bottom:36px;}
+.hero-p strong{color:#888;font-weight:500;}
+.hero-acts{display:flex;gap:14px;align-items:center;margin-bottom:44px;flex-wrap:wrap;}
+.btn-p{background:var(--red);color:var(--white);padding:14px 36px;border-radius:10px;
+  font-size:14px;font-weight:700;text-decoration:none;
+  box-shadow:0 4px 24px rgba(224,28,46,0.4);transition:all .2s;}
+.btn-p:hover{background:var(--red2);transform:translateY(-2px);box-shadow:0 8px 40px rgba(224,28,46,0.5);}
+.btn-g{color:#555;font-size:14px;text-decoration:none;
+  display:flex;align-items:center;gap:6px;transition:color .2s;}
+.btn-g:hover{color:var(--white);}
+.btn-g span{transition:transform .2s;}
+.btn-g:hover span{transform:translateX(4px);}
+.hero-kpis{display:flex;gap:0;border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+.kpi{padding:14px 22px;border-right:1px solid var(--border);}
+.kpi:last-child{border-right:none;}
+.kpi-v{font-size:22px;font-weight:800;letter-spacing:-.5px;}
+.kpi-v .r{color:var(--red);}
+.kpi-l{font-family:'Instrument Mono',monospace;font-size:9px;color:var(--muted);
+  letter-spacing:1px;text-transform:uppercase;margin-top:3px;}
+
+/* HERO RIGHT — phone + cards */
+.hero-right{position:relative;z-index:2;display:flex;
+  align-items:center;justify-content:center;min-height:600px;}
+
+/* Phone */
+.phone{width:252px;background:#09090e;border-radius:42px;
+  border:1.5px solid rgba(255,255,255,0.1);position:relative;z-index:3;
+  box-shadow:0 40px 90px rgba(0,0,0,0.85),0 0 0 1px rgba(255,255,255,0.04),
+    inset 0 0 30px rgba(0,0,0,0.5);overflow:hidden;}
+.phone-notch{height:30px;background:#09090e;display:flex;
+  align-items:center;justify-content:center;gap:8px;}
+.pn-bar{width:44px;height:5px;background:#151520;border-radius:10px;}
+.pn-cam{width:10px;height:10px;background:#151520;border-radius:50%;}
+.phone-status{display:flex;justify-content:space-between;padding:2px 18px 8px;
+  font-family:'Instrument Mono',monospace;font-size:10px;color:#444;}
+.phone-inner{padding:0 14px 20px;}
+.phone-title{font-size:20px;font-weight:800;letter-spacing:-.5px;
+  line-height:1.1;margin-bottom:14px;}
+.phone-hdr{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;}
+.phone-icons{display:flex;gap:8px;}
+.ph-ico{width:30px;height:30px;background:rgba(255,255,255,0.05);
+  border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;}
+
+/* Phone cards */
+.pcard{border-radius:13px;margin-bottom:8px;overflow:hidden;}
+.pcard-inner{padding:12px 14px;}
+.pc-top{display:flex;justify-content:space-between;margin-bottom:3px;}
+.pc-lbl{font-family:'Instrument Mono',monospace;font-size:9px;
+  color:rgba(255,255,255,0.45);letter-spacing:.8px;text-transform:uppercase;}
+.pc-lbl2{font-family:'Instrument Mono',monospace;font-size:9px;
+  color:rgba(255,255,255,0.7);letter-spacing:.8px;}
+.pc-dt{font-family:'Instrument Mono',monospace;font-size:9px;color:rgba(255,255,255,0.3);}
+.pc-row{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:4px;}
+.pc-pair{font-size:11px;color:rgba(255,255,255,0.6);}
+.pc-amt{font-size:17px;font-weight:800;letter-spacing:-.5px;}
+.pc-amt.g{color:var(--green);}
+.pc-amt.w{color:var(--white);}
+.pc-st{font-family:'Instrument Mono',monospace;font-size:9px;
+  display:flex;align-items:center;gap:4px;color:rgba(255,255,255,0.4);}
+.psdot{width:5px;height:5px;border-radius:50%;}
+.psdot.g{background:var(--green);}
+.psdot.r{background:#ff4444;}
+.psdot.y{background:#f59e0b;}
+.mini-chart{height:32px;padding:0 14px 6px;}
+.mc-svg{width:100%;height:100%;}
+/* dark card */
+.pcard.dk{background:rgba(255,255,255,0.04);}
+/* red card */
+.pcard.rd{background:var(--red);}
+/* grid 2-col */
+.pgrid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:8px;}
+.pgcell{background:rgba(255,255,255,0.04);border-radius:10px;padding:10px 11px;}
+.pgc-l{font-family:'Instrument Mono',monospace;font-size:8px;
+  color:#444;letter-spacing:.5px;text-transform:uppercase;margin-bottom:3px;}
+.pgc-v{font-size:14px;font-weight:700;}
+.pgc-v.g{color:var(--green);}
+.pgc-v.rr{color:#ff5555;}
+.pgc-sub{font-family:'Instrument Mono',monospace;font-size:8px;color:#333;margin-top:2px;}
+
+/* NOTIFICATION CARDS */
+.notif{position:absolute;border-radius:16px;padding:15px 18px;
+  box-shadow:0 20px 60px rgba(0,0,0,0.65),0 4px 16px rgba(0,0,0,0.35);
+  min-width:175px;z-index:4;}
+.notif.wh{background:var(--white);color:#111;}
+.notif.rd{background:var(--red);color:var(--white);}
+.notif.dk{background:#1a1a22;color:var(--white);border:1px solid rgba(255,255,255,0.07);}
+
+.n-lbl{font-family:'Instrument Mono',monospace;font-size:9px;letter-spacing:.8px;
+  text-transform:uppercase;margin-bottom:6px;}
+.notif.wh .n-lbl{color:#999;}
+.notif.rd .n-lbl{color:rgba(255,255,255,0.65);}
+.notif.dk .n-lbl{color:#555;}
+.n-val{font-size:23px;font-weight:800;letter-spacing:-1px;line-height:1;}
+.notif.wh .n-val{color:#111;}
+.notif.rd .n-val{color:var(--white);}
+.notif.dk .n-val{color:var(--green);}
+.n-sub{font-family:'Instrument Mono',monospace;font-size:9px;
+  display:flex;align-items:center;gap:4px;margin-top:5px;}
+.notif.wh .n-sub{color:#999;}
+.notif.rd .n-sub{color:rgba(255,255,255,0.7);}
+.notif.dk .n-sub{color:#555;}
+.n-dot{width:4px;height:4px;border-radius:50%;background:var(--green);}
+
+/* Float animations - each card unique */
+@keyframes f1{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-12px) rotate(-3deg)}}
+@keyframes f2{0%,100%{transform:translateY(0) rotate(2.5deg)}50%{transform:translateY(-10px) rotate(2.5deg)}}
+@keyframes f3{0%,100%{transform:translateY(0) rotate(-1.5deg)}50%{transform:translateY(-14px) rotate(-1.5deg)}}
+
+.notif-1{top:28px;right:-72px;animation:f1 4s ease-in-out infinite;}
+.notif-2{bottom:100px;left:-90px;animation:f2 4.5s ease-in-out 1s infinite;}
+.notif-3{top:210px;right:-88px;animation:f3 3.8s ease-in-out 2s infinite;}
+
+/* MARQUEE */
+.marquee{border-top:1px solid var(--border);border-bottom:1px solid var(--border);
+  overflow:hidden;padding:13px 0;background:#07070b;}
+.mq-t{display:flex;animation:mq 22s linear infinite;white-space:nowrap;}
+@keyframes mq{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.mq-i{font-family:'Instrument Mono',monospace;font-size:11px;color:#2a2a2a;
+  letter-spacing:2px;text-transform:uppercase;padding:0 32px;
+  display:flex;align-items:center;gap:12px;}
+.mq-dot{color:var(--red);font-size:14px;}
+
+/* SECTIONS */
+section{padding:100px 52px;position:relative;}
+.stag{font-family:'Instrument Mono',monospace;font-size:11px;color:var(--red);
+  letter-spacing:2px;text-transform:uppercase;margin-bottom:14px;
+  display:flex;align-items:center;gap:10px;}
+.stag::before{content:'';width:18px;height:1px;background:var(--red);}
+.sh2{font-size:clamp(34px,4.2vw,62px);font-weight:900;letter-spacing:-2px;
+  line-height:.94;margin-bottom:60px;}
+.sh2 em{font-style:normal;color:#1e1e22;}
+
+/* FEATURES */
+.feat-g{display:grid;grid-template-columns:repeat(3,1fr);
+  gap:1px;background:var(--border);border-radius:16px;overflow:hidden;border:1px solid var(--border);}
+.feat{background:var(--card);padding:40px 34px;transition:background .2s;position:relative;overflow:hidden;}
+.feat::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,var(--red),transparent);opacity:0;transition:opacity .3s;}
+.feat:hover{background:var(--card2);}
+.feat:hover::after{opacity:1;}
+.feat-n{font-family:'Instrument Mono',monospace;font-size:9px;color:#1e1e22;letter-spacing:2px;margin-bottom:16px;}
+.feat-ico{font-size:30px;margin-bottom:18px;}
+.feat-t{font-size:19px;font-weight:700;letter-spacing:-.3px;margin-bottom:9px;}
+.feat-d{font-size:13px;color:#444;line-height:1.75;}
+.feat-d strong{color:#666;font-weight:500;}
+
+/* METRICS BAND */
+.met-band{background:var(--dark);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:0;}
+.met-inner{padding:60px 52px 0;}
+.met-g{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);}
+.mc{background:var(--dark);padding:40px 32px;border-right:1px solid var(--border);}
+.mc:last-child{border-right:none;}
+.mc-big{font-size:50px;font-weight:900;letter-spacing:-2px;line-height:1;margin-bottom:6px;}
+.mc-big .r{color:var(--red);}
+.mc-big .g{color:var(--green);}
+.mc-lbl{font-family:'Instrument Mono',monospace;font-size:10px;color:#333;letter-spacing:1px;text-transform:uppercase;}
+.mc-sub{font-size:13px;color:#2a2a2a;margin-top:9px;line-height:1.5;}
+
+/* STEPS */
+.steps-g{display:grid;grid-template-columns:repeat(3,1fr);gap:40px;}
+.step{position:relative;}
+.step::after{content:'';position:absolute;top:26px;left:calc(100% + 0px);width:40px;height:1px;
+  background:linear-gradient(90deg,var(--border),transparent);}
+.step:last-child::after{display:none;}
+.step-n{width:52px;height:52px;border-radius:12px;
+  background:var(--card);border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;font-weight:800;color:var(--red);margin-bottom:20px;}
+.step-t{font-size:20px;font-weight:700;letter-spacing:-.3px;margin-bottom:9px;}
+.step-d{font-size:14px;color:#444;line-height:1.75;}
+.step-d strong{color:#666;font-weight:500;}
+
+/* CTA */
+.cta{background:var(--red);padding:100px 52px;text-align:center;position:relative;overflow:hidden;}
+.cta-pat{position:absolute;inset:0;pointer-events:none;
+  background-image:repeating-linear-gradient(0deg,transparent,transparent 38px,rgba(0,0,0,0.06) 38px,rgba(0,0,0,0.06) 39px),
+    repeating-linear-gradient(90deg,transparent,transparent 38px,rgba(0,0,0,0.06) 38px,rgba(0,0,0,0.06) 39px);}
+.cta-tag{font-family:'Instrument Mono',monospace;font-size:11px;
+  color:rgba(255,255,255,0.55);letter-spacing:2px;text-transform:uppercase;margin-bottom:18px;}
+.cta-h{font-size:clamp(44px,6.5vw,90px);font-weight:900;letter-spacing:-3px;
+  line-height:.9;color:var(--white);margin-bottom:18px;position:relative;z-index:1;}
+.cta-p{font-size:16px;color:rgba(255,255,255,0.6);margin-bottom:42px;
+  line-height:1.65;position:relative;z-index:1;}
+.cta-p strong{color:rgba(255,255,255,0.9);font-weight:600;}
+.cta-btn{display:inline-block;background:var(--white);color:var(--red);
+  padding:16px 56px;border-radius:10px;font-size:15px;font-weight:800;
+  letter-spacing:.3px;text-decoration:none;transition:all .2s;
+  box-shadow:0 8px 40px rgba(0,0,0,0.3);position:relative;z-index:1;}
+.cta-btn:hover{transform:translateY(-3px);box-shadow:0 16px 60px rgba(0,0,0,0.4);}
+.cta-note{font-family:'Instrument Mono',monospace;font-size:10px;
+  color:rgba(255,255,255,0.35);margin-top:18px;position:relative;z-index:1;}
+
+/* FOOTER */
+footer{background:var(--black);border-top:1px solid var(--border);
+  padding:28px 52px;display:flex;align-items:center;justify-content:space-between;
+  font-family:'Instrument Mono',monospace;font-size:11px;}
+.flogo{color:var(--white);font-family:'Cabinet Grotesk',sans-serif;
+  font-size:15px;font-weight:900;}
+.flinks{display:flex;gap:24px;}
+.fl{color:#2a2a2a;text-decoration:none;letter-spacing:.5px;transition:color .15s;}
+.fl:hover{color:var(--red);}
+.fr{color:#1a1a1a;}
+
+/* FADE */
+.fi{opacity:0;transform:translateY(18px);transition:opacity .6s,transform .6s;}
+.fi.v{opacity:1;transform:none;}
+.d1{transition-delay:.1s;}.d2{transition-delay:.2s;}.d3{transition-delay:.3s;}
+
+/* ── MOBILE ── */
+@media(max-width:960px){
+  nav{padding:0 20px;}
+  .nav-links .nl{display:none;}
+
+  .hero{grid-template-columns:1fr;padding:78px 20px 48px;gap:56px;}
+  .hero-left{text-align:center;}
+  .hero-pill{display:inline-flex;}
+  .hero-p{margin:0 auto 32px;}
+  .hero-acts{justify-content:center;}
+  .hero-kpis{justify-content:center;}
+
+  .hero-right{min-height:500px;}
+  .phone{width:230px;}
+  .notif-1{right:-44px;top:20px;min-width:155px;}
+  .notif-2{left:-48px;bottom:80px;min-width:155px;}
+  .notif-3{display:none;}
+
+  section{padding:64px 20px;}
+  .met-inner{padding:48px 20px 0;}
+  .feat-g{grid-template-columns:1fr;}
+  .feat{padding:28px 22px;}
+  .met-g{grid-template-columns:1fr 1fr;}
+  .mc{padding:28px 22px;}
+  .mc-big{font-size:40px;}
+  .steps-g{grid-template-columns:1fr;gap:28px;}
+  .step::after{display:none;}
+  .cta{padding:64px 20px;}
+  .cta-btn{width:100%;text-align:center;padding:15px 0;}
+  footer{flex-direction:column;gap:18px;padding:24px 20px;text-align:center;}
+  .flinks{justify-content:center;flex-wrap:wrap;}
+  .hero-bars{display:none;}
+}
+@media(max-width:480px){
+  .hero-h1{font-size:38px;letter-spacing:-1.5px;}
+  .hero-kpis{flex-wrap:wrap;}
+  .kpi{flex:1;min-width:90px;padding:12px 14px;}
+  .n-val{font-size:19px;}
+  .phone{width:210px;}
+  .notif-1{right:-28px;}
+  .notif-2{left:-28px;}
+  .sh2{font-size:30px;letter-spacing:-1px;}
+  .met-g{grid-template-columns:1fr 1fr;}
+}
+
+/* ── Modal Form ── */
+.modal-overlay {
+  display:none; position:fixed; inset:0; z-index:9000;
+  background:rgba(6,6,8,0.97);
+  backdrop-filter:blur(16px);
+  align-items:center; justify-content:center;
+  padding:20px;
+}
+.modal-overlay.open { display:flex; }
+.modal-box {
+  background:#111116;
+  border:1px solid rgba(224,28,46,0.3);
+  border-radius:10px;
+  padding:44px 40px;
+  width:100%; max-width:480px;
+  position:relative;
+  box-shadow:0 0 20px rgba(224,28,46,0.2), 0 24px 80px rgba(0,0,0,0.6);
+  animation:modalIn .3s ease;
+}
+@keyframes modalIn {
+  from{opacity:0;transform:translateY(24px) scale(0.97)}
+  to{opacity:1;transform:translateY(0) scale(1)}
+}
+.modal-close {
+  position:absolute; top:16px; right:20px;
+  background:none; border:none; cursor:pointer;
+  font-size:22px; color:#e01c2e;
+  line-height:1; transition:opacity .2s;
+}
+.modal-close:hover { opacity:.7; }
+.modal-title {
+  font-family:'Cabinet Grotesk', sans-serif;
+  font-size:22px; font-weight:700;
+  color:#f4f2ee; margin-bottom:6px;
+  letter-spacing:-0.5px;
+}
+.modal-sub {
+  font-size:13px; color:#666;
+  margin-bottom:28px; line-height:1.5;
+}
+.modal-field {
+  margin-bottom:18px;
+}
+.modal-label {
+  display:block;
+  font-size:11px; color:#666;
+  letter-spacing:1px; text-transform:uppercase;
+  margin-bottom:7px;
+  font-family:'Cabinet Grotesk', sans-serif;
+}
+.modal-input {
+  width:100%;
+  background:#18181e;
+  border:1px solid rgba(224,28,46,0.3);
+  border-radius:10px;
+  padding:12px 16px;
+  font-family:'Cabinet Grotesk', sans-serif;
+  font-size:14px; color:#f4f2ee;
+  outline:none; transition:border-color .2s, box-shadow .2s;
+}
+.modal-input:focus {
+  border-color:#e01c2e;
+  box-shadow:0 0 0 3px rgba(224,28,46,0.1);
+}
+.modal-input::placeholder { color:#666; opacity:.5; }
+.modal-row {
+  display:grid; grid-template-columns:1fr 1fr; gap:14px;
+}
+.modal-submit {
+  width:100%; margin-top:8px;
+  background:#e01c2e;
+  color:#000; border:none;
+  border-radius:10px;
+  padding:14px; font-size:14px; font-weight:700;
+  font-family:'Cabinet Grotesk', sans-serif;
+  cursor:pointer; letter-spacing:.5px;
+  transition:opacity .2s, transform .2s;
+}
+.modal-submit:hover { opacity:.88; transform:scale(1.01); }
+.modal-success {
+  display:none; text-align:center; padding:20px 0;
+}
+.modal-success-icon {
+  font-size:44px; margin-bottom:16px;
+}
+.modal-success-text {
+  font-size:18px; font-weight:700;
+  color:#f4f2ee; margin-bottom:8px;
+}
+.modal-success-sub {
+  font-size:13px; color:#666;
+}
+@media(max-width:520px){
+  .modal-box { padding:28px 20px; }
+  .modal-row { grid-template-columns:1fr; gap:0; }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="#" class="nav-logo">
+    <div class="nav-badge">G</div>
+    GPT INV
+  </a>
+  <div class="nav-links">
+    <a href="#platform" class="nl">Platform</a>
+    <a href="#metrics" class="nl">Metrics</a>
+    <a href="#how" class="nl">How it works</a>
+    <a href="#contact" class="nav-btn">Get Access</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-atm"></div>
+  <div class="hero-bars" id="hbars"></div>
+
+  <div class="hero-left fi">
+    <div class="hero-pill"><div class="pill-dot"></div>AI Trading · Live 24/7</div>
+    <h1 class="hero-h1">
+      <span class="h1-w">A Smarter</span><br>
+      <span class="h1-w">Way to </span><span class="h1-r">Trade</span><br>
+      <span class="h1-d">&amp; Invest</span>
+    </h1>
+    <p class="hero-p">
+      Автоматизированная AI-платформа с точностью <strong>85%</strong>.
+      Анализирует, торгует, генерирует стабильный cash flow — без вашего участия.
+    </p>
+    <div class="hero-acts">
+      <a href="#contact" class="btn-p">Получить доступ →</a>
+      <a href="#how" class="btn-g">Как это работает <span>→</span></a>
+    </div>
+    <div class="hero-kpis">
+      <div class="kpi"><div class="kpi-v"><span class="r">85</span>%</div><div class="kpi-l">Win Rate</div></div>
+      <div class="kpi"><div class="kpi-v">1<span class="r">:</span>3</div><div class="kpi-l">Risk/Reward</div></div>
+      <div class="kpi"><div class="kpi-v" id="hpnl">+$8.3K</div><div class="kpi-l">Today P&L</div></div>
+    </div>
+  </div>
+
+  <!-- PHONE + NOTIFS -->
+  <div class="hero-right fi d2">
+
+    <!-- Notification 1: top-right, red -->
+    <div class="notif rd notif-1">
+      <div class="n-lbl">Projected Growth</div>
+      <div class="n-val" id="n1">+$35,021</div>
+      <div class="n-sub"><div class="n-dot"></div>+2.9% Today</div>
+    </div>
+
+    <!-- Notification 2: bottom-left, white -->
+    <div class="notif wh notif-2">
+      <div class="n-lbl">Realized P&amp;L</div>
+      <div class="n-val" id="n2">+$128,429</div>
+      <div class="n-sub"><div class="n-dot"></div>+4.9% Today</div>
+    </div>
+
+    <!-- Notification 3: mid-right, dark -->
+    <div class="notif dk notif-3">
+      <div class="n-lbl">Live Trade</div>
+      <div class="n-val" id="n3">+$4,480</div>
+      <div class="n-sub"><div class="n-dot"></div>EUR/USD buy 35</div>
+    </div>
+
+    <!-- Phone mockup -->
+    <div class="phone">
+      <div class="phone-notch"><div class="pn-bar"></div><div class="pn-cam"></div></div>
+      <div class="phone-status"><span>9:41</span><span style="letter-spacing:2px">▪ ▪ ▪ ▪</span></div>
+      <div class="phone-inner">
+        <div class="phone-hdr">
+          <div class="phone-title">Transactions<br>History</div>
+          <div class="phone-icons">
+            <div class="ph-ico">🔍</div>
+            <div class="ph-ico">🔔</div>
+          </div>
+        </div>
+        <!-- Card 1 dark -->
+        <div class="pcard dk">
+          <div class="pcard-inner">
+            <div class="pc-top"><div class="pc-lbl">EUR/USD</div><div class="pc-dt">buy 35</div></div>
+            <div class="pc-row">
+              <div class="pc-pair">1.09466→1.09538</div>
+              <div class="pc-amt g" id="ph1">+2 520</div>
+            </div>
+            <div class="pc-st"><div class="psdot g"></div>Confirmed</div>
+          </div>
+          <div class="mini-chart">
+            <svg class="mc-svg" viewBox="0 0 200 32" preserveAspectRatio="none">
+              <polyline points="0,28 25,22 50,26 75,14 100,18 125,8 150,12 175,4 200,6"
+                fill="none" stroke="rgba(34,197,94,0.45)" stroke-width="1.5"/>
+            </svg>
+          </div>
+        </div>
+        <!-- Card 2 red -->
+        <div class="pcard rd">
+          <div class="pcard-inner">
+            <div class="pc-top"><div class="pc-lbl2">EUR/USD</div><div class="pc-dt" style="color:rgba(255,255,255,0.5)">buy 35</div></div>
+            <div class="pc-row">
+              <div class="pc-pair">1.09466→1.09594</div>
+              <div class="pc-amt w" id="ph2">+4 480</div>
+            </div>
+            <div class="pc-st" style="color:rgba(255,255,255,0.65)"><div class="psdot g"></div>Confirmed</div>
+          </div>
+        </div>
+        <!-- Grid 2-col -->
+        <div class="pgrid">
+          <div class="pgcell">
+            <div class="pgc-l">EUR/USD</div>
+            <div class="pgc-v g" id="ph3">+2 524</div>
+            <div class="pgc-sub">buy 35 · live</div>
+          </div>
+          <div class="pgcell">
+            <div class="pgc-l">EUR/USD</div>
+            <div class="pgc-v rr">sell 15</div>
+            <div class="pgc-sub" id="ph4">+1 335</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MARQUEE -->
+<div class="marquee">
+  <div class="mq-t">
+    <span class="mq-i">AI Trading <span class="mq-dot">●</span></span>
+    <span class="mq-i">Win Rate 85% <span class="mq-dot">●</span></span>
+    <span class="mq-i">EUR/USD +4,480 <span class="mq-dot">●</span></span>
+    <span class="mq-i">Risk Reward 1:3 <span class="mq-dot">●</span></span>
+    <span class="mq-i">Cash Flow 24/7 <span class="mq-dot">●</span></span>
+    <span class="mq-i">GPT INV System <span class="mq-dot">●</span></span>
+    <span class="mq-i">Max DD ≤10% <span class="mq-dot">●</span></span>
+    <span class="mq-i">Auto Trading <span class="mq-dot">●</span></span>
+    <span class="mq-i">AI Trading <span class="mq-dot">●</span></span>
+    <span class="mq-i">Win Rate 85% <span class="mq-dot">●</span></span>
+    <span class="mq-i">EUR/USD +4,480 <span class="mq-dot">●</span></span>
+    <span class="mq-i">Risk Reward 1:3 <span class="mq-dot">●</span></span>
+    <span class="mq-i">Cash Flow 24/7 <span class="mq-dot">●</span></span>
+    <span class="mq-i">GPT INV System <span class="mq-dot">●</span></span>
+    <span class="mq-i">Max DD ≤10% <span class="mq-dot">●</span></span>
+    <span class="mq-i">Auto Trading <span class="mq-dot">●</span></span>
+  </div>
+</div>
+
+<!-- PLATFORM -->
+<section id="platform">
+  <div class="stag">Platform</div>
+  <h2 class="sh2 fi">Торговая система<br><em>нового поколения.</em></h2>
+  <div class="feat-g">
+    <div class="feat fi"><div class="feat-n">01 /</div><div class="feat-ico">🤖</div><div class="feat-t">AI Trading Robots</div><div class="feat-d">Уникальные алгоритмы с точностью <strong>85%</strong>. Анализируют рынок и торгуют автономно — без эмоций и ошибок.</div></div>
+    <div class="feat fi d1"><div class="feat-n">02 /</div><div class="feat-ico">⚖️</div><div class="feat-t">Risk Reward 1:3</div><div class="feat-d">Математически выверенное соотношение. Прибыльно даже при <strong>Win Rate 50%</strong>. Каждая сделка защищена.</div></div>
+    <div class="feat fi d2"><div class="feat-n">03 /</div><div class="feat-ico">📊</div><div class="feat-t">Прозрачная аналитика</div><div class="feat-d">P&L, Win Rate, каждая позиция — в <strong>реальном времени</strong>. Полный контроль без ручного управления.</div></div>
+  </div>
+</section>
+
+<!-- METRICS -->
+<div class="met-band" id="metrics">
+  <div class="met-inner">
+    <div class="stag">System Metrics</div>
+    <h2 class="sh2 fi" style="margin-bottom:40px">Результаты <em>говорят сами.</em></h2>
+  </div>
+  <div class="met-g">
+    <div class="mc fi"><div class="mc-big"><span class="r">85</span>%</div><div class="mc-lbl">Win Rate</div><div class="mc-sub">Точность алгоритмов на 3+ лет истории</div></div>
+    <div class="mc fi d1"><div class="mc-big">1:3</div><div class="mc-lbl">Risk / Reward</div><div class="mc-sub">Математически выверенное соотношение</div></div>
+    <div class="mc fi d2"><div class="mc-big"><span class="g">99.9</span>%</div><div class="mc-lbl">Uptime</div><div class="mc-sub">Система работает без остановок 24/7</div></div>
+    <div class="mc fi d3"><div class="mc-big">≤10%</div><div class="mc-lbl">Max Drawdown</div><div class="mc-sub">Встроенная защита капитала</div></div>
+  </div>
+</div>
+
+<!-- HOW IT WORKS -->
+<section id="how">
+  <div class="stag">How it works</div>
+  <h2 class="sh2 fi">Три шага <em>до дохода.</em></h2>
+  <div class="steps-g">
+    <div class="step fi"><div class="step-n">01</div><div class="step-t">Подключаете счёт</div><div class="step-d">Открываете счёт у брокера-партнёра. Подключаете к платформе. <strong>Менее 30 минут</strong> — никаких технических знаний.</div></div>
+    <div class="step fi d1"><div class="step-n">02</div><div class="step-t">AI берёт управление</div><div class="step-d">Система анализирует рынок с точностью <strong>85%+</strong>, управляет позициями и фиксирует прибыль. Полностью автономно.</div></div>
+    <div class="step fi d2"><div class="step-n">03</div><div class="step-t">Получаете cash flow</div><div class="step-d">Прибыль накапливается на счёте. <strong>Система работает 24/7.</strong> Выводите средства когда удобно.</div></div>
+  </div>
+</section>
+
+<!-- CTA -->
+<div class="cta" id="contact">
+  <div class="cta-pat"></div>
+  <div class="cta-tag">Get Started</div>
+  <h2 class="cta-h fi">Подключитесь.<br>Система работает.</h2>
+  <p class="cta-p fi">Первая консультация бесплатно.<br><strong>Настройка занимает менее 30 минут.</strong></p>
+  <a href="#" class="cta-btn fi">ПОЛУЧИТЬ ДОСТУП →</a>
+  <p class="cta-note">Win Rate 85% · Risk/Reward 1:3 · 24/7 Automated</p>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="flogo">GPT INV</div>
+  <div class="flinks">
+    <a href="#platform" class="fl">Platform</a>
+    <a href="#metrics" class="fl">Metrics</a>
+    <a href="#how" class="fl">How it works</a>
+    <a href="#contact" class="fl">Contact</a>
+  </div>
+  <div class="fr">© 2025 GPT INV</div>
+</footer>
+
+<script>
+// Bar chart background
+const hb = document.getElementById('hbars');
+if(hb){
+  [35,50,65,38,75,52,82,44,68,58,78,48,88,53,62,42,72,56,84,47,67,37,77,52,61,41,87,57,72,46].forEach((h,i)=>{
+    const b=document.createElement('div');
+    b.className='hbar';
+    b.style.cssText=`height:${h}%;animation-delay:${i*.15}s;`;
+    hb.appendChild(b);
+  });
+}
+
+// Live numbers
+let pnl=8335,n1=35021,n2=128429,n3=4480,p1=2520,p2=4480,p3=2524,p4=1335;
+function fmt(v){return Math.round(v).toLocaleString('en');}
+setInterval(()=>{
+  pnl+=Math.random()*8-.4; n1+=Math.random()*14-.4;
+  n2+=Math.random()*22-.4; n3+=Math.random()*7-.2;
+  p1+=Math.random()*4-.2;  p2+=Math.random()*6-.2;
+  p3+=Math.random()*4-.2;  p4+=Math.random()*3-.1;
+  const set=(id,v,pre='')=>{const el=document.getElementById(id);if(el)el.textContent=pre+v;};
+  set('hpnl','+$'+Math.round(pnl/100)/10+'K');
+  set('n1','+$'+fmt(n1)); set('n2','+$'+fmt(n2)); set('n3','+$'+fmt(n3));
+  set('ph1','+'+fmt(p1)); set('ph2','+'+fmt(p2));
+  set('ph3','+'+fmt(p3)); set('ph4','+'+fmt(p4));
+},1800);
+
+// Fade in
+const obs=new IntersectionObserver(entries=>entries.forEach(e=>{
+  if(e.isIntersecting)e.target.classList.add('v');
+}),{threshold:.07});
+document.querySelectorAll('.fi').forEach(el=>obs.observe(el));
+</script>
+
+<!-- Modal Form -->
+<div class="modal-overlay" id="contactModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="modal-box">
+    <button class="modal-close" id="modalClose" aria-label="Закрыть">&times;</button>
+    <div id="modalFormWrap">
+      <div class="modal-title" id="modalTitle">Оставьте заявку</div>
+      <div class="modal-sub">Мы свяжемся с вами в течение 24 часов</div>
+      <div class="modal-row">
+        <div class="modal-field">
+          <label class="modal-label" for="mFirstName">Имя</label>
+          <input class="modal-input" type="text" id="mFirstName" placeholder="Иван" autocomplete="given-name">
+        </div>
+        <div class="modal-field">
+          <label class="modal-label" for="mLastName">Фамилия</label>
+          <input class="modal-input" type="text" id="mLastName" placeholder="Петров" autocomplete="family-name">
+        </div>
+      </div>
+      <div class="modal-field">
+        <label class="modal-label" for="mEmail">Почта</label>
+        <input class="modal-input" type="email" id="mEmail" placeholder="ivan@example.com" autocomplete="email">
+      </div>
+      <div class="modal-field">
+        <label class="modal-label" for="mPhone">Номер телефона</label>
+        <input class="modal-input" type="tel" id="mPhone" placeholder="+7 999 000 00 00" autocomplete="tel">
+      </div>
+      <button class="modal-submit" id="modalSubmit">Отправить заявку →</button>
+    </div>
+    <div class="modal-success" id="modalSuccess">
+      <div class="modal-success-icon">✓</div>
+      <div class="modal-success-text">Заявка отправлена!</div>
+      <div class="modal-success-sub">Мы свяжемся с вами в ближайшее время.</div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var modal = document.getElementById('contactModal');
+  var closeBtn = document.getElementById('modalClose');
+  var submitBtn = document.getElementById('modalSubmit');
+  var formWrap = document.getElementById('modalFormWrap');
+  var successWrap = document.getElementById('modalSuccess');
+
+  function openModal(e){
+    var tag = (e.target || e.srcElement);
+    // Don't intercept internal anchor nav (hash-only links that aren't #contact)
+    if(tag && tag.tagName === 'A'){
+      var href = tag.getAttribute('href') || '';
+      // allow plain hash nav except #contact/#подключиться style - open modal for those
+      if(href.startsWith('#') && href !== '#' && href !== '#contact' && href.toLowerCase().indexOf('contact') === -1 && href.toLowerCase().indexOf('подключ') === -1){
+        return; // let it scroll
+      }
+    }
+    e.preventDefault();
+    modal.classList.add('open');
+    document.body.style.overflow='hidden';
+  }
+
+  function closeModal(){
+    modal.classList.remove('open');
+    document.body.style.overflow='';
+  }
+
+  // Bind all buttons and links
+  document.querySelectorAll('a, button').forEach(function(el){
+    // skip modal internal buttons
+    if(el.closest('.modal-overlay')) return;
+    el.addEventListener('click', openModal);
+  });
+
+  closeBtn.addEventListener('click', closeModal);
+  modal.addEventListener('click', function(e){ if(e.target === modal) closeModal(); });
+  document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeModal(); });
+
+  submitBtn.addEventListener('click', function(){
+    var first = document.getElementById('mFirstName').value.trim();
+    var last  = document.getElementById('mLastName').value.trim();
+    var email = document.getElementById('mEmail').value.trim();
+    var phone = document.getElementById('mPhone').value.trim();
+    if(!first || !last || !email || !phone){
+      alert('Пожалуйста, заполните все поля.');
+      return;
+    }
+    formWrap.style.display='none';
+    successWrap.style.display='block';
+    setTimeout(function(){
+      closeModal();
+      formWrap.style.display='';
+      successWrap.style.display='none';
+      document.getElementById('mFirstName').value='';
+      document.getElementById('mLastName').value='';
+      document.getElementById('mEmail').value='';
+      document.getElementById('mPhone').value='';
+    }, 2800);
+  });
+})();
+</script>
+
+</body>
+</html>
